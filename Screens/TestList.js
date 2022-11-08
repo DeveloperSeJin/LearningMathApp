@@ -1,19 +1,20 @@
 import {useState} from 'react';
-import {Image} from 'react-native'
-import People from '../assets/People.png'
+import {Image, TouchableOpacity} from 'react-native'
+import people from '../assets/people.png'
 
-const TestList = () => {
-    const [People, setPeople] = useState("");
+const TestList = (props) => {
+    const [PeopleInfo, setPeopleInfo] = useState(["a","b"]);
+
     return (
-        People.map((item,idx) => (
+        PeopleInfo.map((item,idx) => (
             <TouchableOpacity
             key = {idx}
             onPress={()=>{
-                props.navigation.navigate("StudentInformation")
+                props.navigation.navigate("SelectStrategy")
             }}>
                 <Image
                     style={{width:400,height:100}}
-                    source={People}
+                    source={people}
                     resizeMode="contain"
                 />
             </TouchableOpacity>

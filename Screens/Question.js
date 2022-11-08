@@ -1,9 +1,9 @@
 import {Text} from 'react-native';
 
-const SelectionQuestionList = () => {
+const Question = () => {
     return (
         <Text>HI</Text>
     );
 }
 
-export default SelectionQuestionList
+export default Question
