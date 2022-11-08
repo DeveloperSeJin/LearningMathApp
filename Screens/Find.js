@@ -1,9 +1,9 @@
 import {Text} from 'react-native';
 
-const GradedQuestionList = () => {
+const Find = () => {
     return (
         <Text>HI</Text>
     );
 }
 
-export default GradedQuestionList
+export default Find
