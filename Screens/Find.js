@@ -2,7 +2,7 @@ import {Text} from 'react-native';
 
 const Find = () => {
     return (
-        <Text>test!!!</Text>
+        <Text>test123123!!!</Text>
     );
 }
 
