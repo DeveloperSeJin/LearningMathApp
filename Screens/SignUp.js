@@ -1,9 +1,9 @@
 import {Text} from 'react-native';
 
-const Authentication = () => {
+const SignUp = () => {
     return (
         <Text>BYE</Text>
     );
 }
 
-export default Authentication
+export default SignUp

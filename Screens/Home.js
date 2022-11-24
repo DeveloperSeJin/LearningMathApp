@@ -2,7 +2,7 @@ import {View, Text, Button, Image, TouchableOpacity, Touchable, StyleSheet} from
 import Start from '../assets/Start.png'
 import check from '../assets/check.png'
 
-const Main = (props) => {
+const Home = (props) => {
     return (
         <View
             style = {styles.LoginLocation}>
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
     },
   });
 
-export default Main
+export default Home
