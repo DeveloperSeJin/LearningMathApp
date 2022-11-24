@@ -47,7 +47,9 @@ const Question = (props) => {
             {promport?.map((item, idx) => {
                 if (item.strategy_id == strategy_id) {
                     return (
-                        <View>
+                        <View
+                            key = {idx}
+                        >
                             <Text>{item.promport_num}</Text>
                             <Text>{item.content}</Text>
                             <Text>-----------------------------</Text>
