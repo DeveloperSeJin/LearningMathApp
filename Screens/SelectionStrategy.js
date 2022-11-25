@@ -52,7 +52,8 @@ const SelectionStrategy = (props) => {
                             key = {idx}
                             onPress={()=>{
                             props.navigation.navigate("Question", 
-                            {strategy_id : item.strategy_id})
+                            {strategy_id : item.strategy_id,
+                             question_id : question_id})
                         }}>
                             <Text>{item.strategy_num}</Text>
                             <Text>{item.strategy_content}</Text>
