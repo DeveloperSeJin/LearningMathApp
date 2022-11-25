@@ -6,7 +6,7 @@ import SignUp from './Screens/SignUp'
 import Home from './Screens/Home'
 import TestList from './Screens/TestList'
 import Question from './Screens/Question'
-import SelectStrategy from './Screens/SelectionStrategy'
+import SelectStrategy from './Screens/SelectStrategy'
 import GradedQuestionList from './Screens/GradedQuestionList'
 
 const Stack = createStackNavigator();

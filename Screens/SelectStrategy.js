@@ -5,7 +5,7 @@ import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
 
-const SelectionStrategy = (props) => {
+const SelectStrategy = (props) => {
     const {params} = props.route
     const question_id = params? params.question_id:null;
     const [strategy, setStrategy] = useState()
@@ -66,4 +66,4 @@ const SelectionStrategy = (props) => {
     );
 }
 
-export default SelectionStrategy
+export default SelectStrategy
