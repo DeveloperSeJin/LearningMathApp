@@ -33,7 +33,7 @@ const Question = (props) => {
         });
       };
 
-      const getANswer = async() => {
+      const getAnswer = async() => {
         try{
             const data = await getDocs(collection(db, "answer"))
             let itemList = []
@@ -55,7 +55,7 @@ const Question = (props) => {
       }
 
       const addAnswer = async (id, ans) => {
-        setAnswer(...answer, id)
+        getAnswer()
         try {
             await addDoc(collection(db, "answer"), {
                 student_answer:studentAnswer,
@@ -95,7 +95,7 @@ const Question = (props) => {
         }
     }
     if(flag){
-        getANswer()
+        getAnswer()
         getPromport()
         setFlag(false)
     }

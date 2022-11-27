@@ -6,7 +6,7 @@ import LogIn from '../assets/LogIn.png'
 
 const Login = (props) => {
     const stu_id = "001"
-    
+
     return (
         <View style = {styles.LoginLocation}>
             <Input></Input>
