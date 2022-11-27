@@ -1,4 +1,4 @@
-import {TouchableOpacity, Text, View} from 'react-native';
+import {TouchableOpacity, Text, View, Button} from 'react-native';
 import {useState} from 'react';
 import {db} from '../firebaseConfig'
 import {
@@ -8,8 +8,10 @@ import {
 const SelectStrategy = (props) => {
     const {params} = props.route
     const question_id = params? params.question_id:null;
+    const stu_id = params?params.stu_id:null;
     const [strategy, setStrategy] = useState()
     const [flag,setFlag] = useState(true);
+    const [strategyCheck, setstrategyCheck] = useState([]);
 
     const sortJSON = function(data, key, type) {
         if (type == undefined) {
@@ -25,24 +27,75 @@ const SelectStrategy = (props) => {
           }
         });
       };
-
-    const getStrategy = async () => {
+      const getStrategy = async() => {
         try{
             const data = await getDocs(collection(db, "strategy"))
             let itemList = []
             data.docs.map(
-                doc => {itemList.push(doc.data())})
-            setStrategy(sortJSON(itemList,"strategy_num"));
+                doc => {
+                    if (doc.data().question_id == question_id) {
+                        itemList.push(doc.data())
+                    }
+                })
+            setStrategy(sortJSON(itemList,"strategy_num"))
         } catch(error) {
             console.log(error.message)
         }
     }
 
+    const getCheck = async() => {
+        try {
+            const data = await getDocs(collection(db, "strategyCheck"))
+            let itemList = []
+            data.docs.map(
+                doc => {
+                    if (doc.data().student_id == stu_id) {
+                        itemList.push(doc.data().strategy_id)
+                    }
+                })
+                setstrategyCheck(sortJSON(itemList,"strategy_id"))
+        } catch(error) {
+            console.log(error.message)
+        }
+    }
+
+    const go2Question = async() => {
+        let check = false;
+        strategy?.map((item) => {
+            if (strategyCheck.includes(item.strategy_id)) {
+                check = true;
+            } else {
+                check = false;
+            }
+        })
+        if (check) {
+            try {
+                await addDoc(collection(db, "questionCheck"), {
+                    question_id:question_id,
+                    student_id:stu_id
+                })
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+        props.navigation.navigate("TestList",
+            {stu_id:stu_id})
+        }
+
     if(flag){
+        getCheck()
         getStrategy()
         setFlag(false)
     }
     
+    const showCheck = (id) => {
+        if(strategyCheck.includes(id)){
+            return true
+        }
+        else {
+            return false
+        }
+    }
     return (
         <View>
             {strategy?.map((item, idx) => {
@@ -50,18 +103,24 @@ const SelectStrategy = (props) => {
                     return (
                         <TouchableOpacity
                             key = {idx}
+                            disabled = {showCheck(item.strategy_id)}
                             onPress={()=>{
                             props.navigation.navigate("Question", 
                             {strategy_id : item.strategy_id,
-                             question_id : question_id})
+                             question_id : question_id,
+                             stu_id:stu_id})
                         }}>
-                            <Text>{item.strategy_num}</Text>
+                            <Text>{item.strategy_num} {showCheck(item.strategy_id)}</Text>
                             <Text>{item.strategy_content}</Text>
                             <Text>--------------------------</Text>
                         </TouchableOpacity>
                     )
                 }
             })}
+            <Button
+                title = "go2Question"
+                onPress = {go2Question}
+            ></Button>
         </View>
     );
 }
