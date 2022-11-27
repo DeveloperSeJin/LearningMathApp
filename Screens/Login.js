@@ -1,21 +1,68 @@
-import Input from '../Components/Input';
-import {View, StyleSheet, Image,TouchableOpacity} from 'react-native';
+import {View, StyleSheet, Image,TouchableOpacity, TextInput} from 'react-native';
 import find from '../assets/find.png'
 import SignUp from '../assets/SignUp.png'
 import LogIn from '../assets/LogIn.png'
+import {useState} from 'react';
+import {db} from '../firebaseConfig'
+import {
+    addDoc, collection, getDocs,
+     doc, updateDoc, where, query} from "firebase/firestore";
 
 const Login = (props) => {
-    const stu_id = "001"
+    const [flag,setFlag] = useState(true);
+    const [ID, setID] = useState("");
+    const [password, setPassword] = useState("");
+    const [studentInfo, setStudentInfo] = useState();
+    
+    const readfromDB = async() => {
+        try{
+            const data = await getDocs(collection(db, "student"))
+            
+            setStudentInfo(data.docs.map(doc=>(
+                {...doc.data(), id: doc.id}
+                )))
+        } catch(error) {
+            console.log(error.message)
+        }
+    }
+    const changeID = (event) => {
+        setID(event)
+      }
+    const changePassword = (event) => {
+        setPassword(event)
+    }
 
+    if (flag) {
+        readfromDB()
+        setFlag(false)
+    }
+
+    const login2Home = () => {
+        let have = false
+        studentInfo?.map((item) => {
+            if (item.studentid == ID &&
+                item.password == password) {
+                    have = true
+                    props.navigation.navigate("Home",
+                    {stu_id:item.studentid})
+            }
+        })
+        if (!have) {
+            alert("아이디 또는 비밀번호가 틀렸습니다.")
+        }
+    }
     return (
         <View style = {styles.LoginLocation}>
-            <Input></Input>
-            <Input></Input>
+            <TextInput
+            value = {ID}
+            onChangeText = {changeID}
+            />
+            <TextInput
+            value = {password}
+            onChangeText = {changePassword}
+            />
             <TouchableOpacity
-                onPress={()=>{
-                    props.navigation.navigate("Home",
-                    {stu_id:stu_id})
-                }}>
+                onPress={login2Home}>
                     <Image
                         style={{width:400,height:100}}
                         source={LogIn}
