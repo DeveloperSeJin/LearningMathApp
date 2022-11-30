@@ -12,6 +12,7 @@ const SelectStrategy = (props) => {
     const [strategy, setStrategy] = useState()
     const [flag,setFlag] = useState(true);
     const [strategyCheck, setstrategyCheck] = useState([]);
+    const [question, setQuestion] = useState();
 
     const sortJSON = function(data, key, type) {
         if (type == undefined) {
@@ -38,6 +39,16 @@ const SelectStrategy = (props) => {
                     }
                 })
             setStrategy(sortJSON(itemList,"strategy_num"))
+        } catch(error) {
+            console.log(error.message)
+        }
+    }
+
+    const getQuestion = async() => {
+        try{
+            const q = query(collection(db,"question"), where ('question_id', "==", question_id))
+            const data = await getDocs(q)
+            setAnswer(data.docs.map(doc => ({...doc.data(), id:doc.id})))
         } catch(error) {
             console.log(error.message)
         }
@@ -84,26 +95,29 @@ const SelectStrategy = (props) => {
 
     if(flag){
         getCheck()
+        getQuestion
         getStrategy()
         setFlag(false)
     }
     
-    const showCheck = (id) => {
-        if(strategyCheck.includes(id)){
-            return true
-        }
-        else {
-            return false
-        }
-    }
+    //const showCheck = (id) => {
+    //    if(strategyCheck.includes(id)){
+    //        return true
+    //    }
+    //    else {
+    //        return false
+    //    }
+    //}
+
     return (
         <View>
+            <Text>{question}</Text>
             {strategy?.map((item, idx) => {
                 if (item.question_id == question_id) {
                     return (
                         <TouchableOpacity
                             key = {idx}
-                            disabled = {showCheck(item.strategy_id)}
+                            //disabled = {showCheck(item.strategy_id)}
                             onPress={()=>{
                             props.navigation.navigate("Question", 
                             {strategy_id : item.strategy_id,

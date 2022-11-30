@@ -10,6 +10,8 @@ import SelectStrategy from './Screens/SelectStrategy'
 import GradedQuestionList from './Screens/GradedQuestionList'
 import CheckStrategy from './Screens/CheckStrategy'
 import CheckPromport from './Screens/CheckPromport'
+import QuestionAnswer from './Screens/QuestionAnswer'
+
 const Stack = createStackNavigator();
 
  export default function App() {
@@ -26,6 +28,7 @@ const Stack = createStackNavigator();
          <Stack.Screen name = "GradedQuestionList" component = {GradedQuestionList}/>
          <Stack.Screen name = "CheckStrategy" component = {CheckStrategy}/>
          <Stack.Screen name = "CheckPromport" component = {CheckPromport}/>
+         <Stack.Screen name = "QuestionAnswer" component = {QuestionAnswer}/>
        </Stack.Navigator>
      </NavigationContainer>
    );

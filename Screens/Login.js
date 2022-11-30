@@ -56,10 +56,12 @@ const Login = (props) => {
             <TextInput
             value = {ID}
             onChangeText = {changeID}
+            style = {styles.TextBar}
             />
             <TextInput
             value = {password}
             onChangeText = {changePassword}
+            style = {styles.TextBar}
             />
             <TouchableOpacity
                 onPress={login2Home}>
@@ -99,13 +101,18 @@ const Login = (props) => {
 
 const styles = StyleSheet.create({
     LoginLocation: {
-      width:'70',
+      width:"90%",
       marginTop:200,
-      marginLeft :200,
-      marginRight:200,
       fontSize:25,
       padding:10
     },
+    TextBar: {
+        width:'100%',
+        backgroundColor:"#cecece",
+        marginTop:20,
+        fontSize:25,
+        padding:10
+      },
   });
 
 export default Login;

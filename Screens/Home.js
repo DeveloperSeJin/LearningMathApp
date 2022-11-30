@@ -10,69 +10,41 @@ import { useState } from 'react'
 const Home = (props) => {
     const {params} = props.route
     const stu_id = params?params.stu_id:null;
-    const questionNum = 8
-    const [student, setStudent] = useState();
-    const [flag,setFlag] = useState(true);
-    const [showResult, setShowResult] = useState (true);
 
+    const [flag,setFlag] = useState(true);
+    const [solved, setSolved] = useState()
+    const [promport, setPromport] = useState()
+    
     const readfromDB = async() => {
         try {
             const student_data = await getDocs(collection(db, "student"))
-            setStudent(student_data.docs.map(doc=>(
-                {...doc.data(), id: doc.id}
-            )))
+            student_data.docs.map(doc=>{
+                if(doc.data().studentid == stu_id) {
+                    setSolved(doc.data().solved)
+                }
+            })
         } 
         catch(error) {
             console.log(error.message)
         }
     }
-    const getCheck = async() => {
-        try{
-            let itemList = []
-            const data = await getDocs(collection(db, "questionCheck"))
-            
+
+    const getPromport = async() => {
+        try {
+            const data = await getDocs(collection(db, "promport"))
             data.docs.map(doc=>{
-                if (doc.data().student_id == stu_id) {
-                    itemList.push(doc.data())
+                if(doc.data().studentid == stu_id) {
+                    setSolved(doc.data().solved)
                 }
             })
-
-            if (itemList.length == questionNum) {
-                setShowResult(false)
-                solveQuestion(true)
-            }
-            else {
-                setShowResult(true)
-                solveQuestion(false)
-            }
-        } catch(error) {
+        } 
+        catch(error) {
             console.log(error.message)
-        }
-    }
-
-    const solveQuestion = async(check) => {
-        let result
-        
-        student?.map((item)=> {
-            if (item.student_id == stu_id) {
-                result = item.id
-            }
-        })
-        try {
-            const docRef = doc(db, "student", result);
-            await updateDoc(docRef, {
-                solved:check
-            });
-            console.log("success")
-            readfromDB()
-        } catch (error) {
-            console.log(error.message);
         }
     }
 
     if(flag){
         readfromDB()
-        getCheck()
         setFlag(false)
     }
 
@@ -82,6 +54,7 @@ const Home = (props) => {
             <Text>NAME</Text>
             <Text>CLASS AND STUDENTS</Text>
             <TouchableOpacity
+                    disabled = {solved}
                     onPress={()=>{
                         props.navigation.navigate("TestList",
                         {stu_id:stu_id})
@@ -93,7 +66,7 @@ const Home = (props) => {
                 />
             </TouchableOpacity>
             <TouchableOpacity
-                    disabled = {showResult}
+                    disabled = {!solved}
                     onPress={()=>{
                         props.navigation.navigate("GradedQuestionList",
                         {stu_id:stu_id})
@@ -110,7 +83,7 @@ const Home = (props) => {
 
 const styles = StyleSheet.create({
     LoginLocation: {
-      width:'70',
+      width:70,
       marginTop:200,
       marginLeft :200,
       marginRight:200,

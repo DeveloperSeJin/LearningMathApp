@@ -58,7 +58,7 @@ const SignUp = (props) => {
         } else {
             try {
                 await addDoc(collection(db, "student"), {
-                    student_id : ID,
+                    studentid : ID,
                     name : name,
                     class : myClass,
                     password:password,

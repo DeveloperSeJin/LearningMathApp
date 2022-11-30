@@ -1,4 +1,4 @@
-import {Image, TouchableOpacity, Text} from 'react-native'
+import {Image, TouchableOpacity, Text, Button, View} from 'react-native'
 import people from '../assets/people.png'
 import {db} from '../firebaseConfig'
 import {
@@ -12,8 +12,8 @@ const TestList = (props) => {
 
     const [question, setQuestion] = useState();
     const [flag,setFlag] = useState(true);
-    const [questionCheck, setQuestionCheck] = useState([]);
-
+    const [id, setID] = useState()
+    
     const sortJSON = function(data, key, type) {
         if (type == undefined) {
           type = "asc";
@@ -41,44 +41,49 @@ const TestList = (props) => {
         }
     }
 
-    const getCheck = async() => {
+    const getStudent = async() => {
         try {
-            const data = await getDocs(collection(db, "questionCheck"))
-            let itemList = []
-            data.docs.map(
-                doc => {
-                    if (doc.data().student_id == stu_id) {
-                        itemList.push(doc.data().question_id)
-                    }
-                })
-                setQuestionCheck(sortJSON(itemList,"question_id"))
-        } catch(error) {
+            const data = await getDocs(collection(db, "student"))
+
+            data.docs.map(doc => {
+                if (doc.data().studentid == stu_id) {
+                    setID(doc.id)
+                }
+            })
+        } catch (error) {
             console.log(error.message)
         }
     }
 
+    const getCheck = async() => {
+        var returnValue = confirm("문제제출하면 다시 풀 수 없습니다. 제출하시겠습니까?")
+        if (returnValue) {
+            console.log(id)
+            try {
+                const docRef = doc(db, "student", id);
+                await updateDoc(docRef, {
+                    solved:true
+                });
+                console.log("success")
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+    }
+
     if(flag){
-        getCheck()
+        getStudent()
         getQuestion()
         setFlag(false)
     }
 
-    const showCheck = (id) => {
-        if(questionCheck.includes(id)){
-            return true
-        }
-        else {
-            return false
-        }
-    }
-
     return (
-        question?.map((item,idx) => (
+        <View>
+            {question?.map((item,idx) => (
             <TouchableOpacity
             key = {idx}
-            disabled = {showCheck(item.question_id)}
             onPress={()=>{
-                props.navigation.navigate("SelectStrategy", 
+                props.navigation.navigate("QuestionAnswer", 
                 {question_id : item.question_id,
                  stu_id:stu_id})
             }}>
@@ -88,9 +93,13 @@ const TestList = (props) => {
                     resizeMode="contain"
                 />
                 <Text>{item.title}</Text>
-                <Text>{}</Text>
             </TouchableOpacity>
-        ))
+        ))}
+        <Button
+            title = "submit"
+            onPress={getCheck}
+        />
+        </View>
     );
 }
 
