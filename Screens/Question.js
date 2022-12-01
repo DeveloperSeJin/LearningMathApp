@@ -6,9 +6,6 @@ import {
      doc, updateDoc, where, query} from "firebase/firestore";
 
 const Question = (props) => {
-    const a = ['','one ','two ','three ','four ', 'five ','six ','seven ','eight ','nine ','ten ','eleven ','twelve ','thirteen ','fourteen ','fifteen ','sixteen ','seventeen ','eighteen ','nineteen '];
-    const b = ['', '', 'twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety'];
-
     const {params} = props.route
     const strategy_id = params? params.strategy_id:null;
     const question_id = params? params.question_id:null;
@@ -70,9 +67,12 @@ const Question = (props) => {
                 if (item.promport_num == 1) {
                     itemList.map((doc) => {
                         if (doc.promport_id == item.promport_id) {
+                            console.log((item.answer.split(";"))[0] != "guess" || (item.answer.split(";"))[0] != "goto")
                             console.log("전에 풀었던 문제 발견")
                             console.log(doc.promport_id)
-                            setShow(true)
+                            if ((item.answer.split(";"))[0] != "guess" && (item.answer.split(";"))[0] != "goto") {
+                                setShow(true)
+                            }
                             setStudentAnswer(doc.student_answer)
                         }
                     })
@@ -148,13 +148,17 @@ const Question = (props) => {
         console.log(qus)
         console.log(ans.split(";").pop())
         if (qus == 'short') {
-            result = shortProcess(ans)
+            console.log('go short')
+            result = shortProcess(ans.split(";").pop())
         } else if (qus == 'long') {
-            result = longProcess(ans)
+            console.log('go long')
+            result = longProcess(ans.split(";").pop())
         } else if (qus == 'guess') {
-            result = guessProcess(ans)
+            console.log('go guess')
+            result = guessProcess(ans.split(";").pop())
         } else if (qus == 'goto') {
-            result = gotoProcess(ans)
+            console.log('go goto')
+            result = gotoProcess(ans.split(";").pop())
         }
         console.log(result)
 
@@ -194,10 +198,14 @@ const Question = (props) => {
             }
         }
       }
-
+      
       function inWords (num) {
+        const a = ['','one ','two ','three ','four ', 'five ','six ','seven ','eight ','nine ','ten ','eleven ','twelve ','thirteen ','fourteen ','fifteen ','sixteen ','seventeen ','eighteen ','nineteen '];
+        const b = ['', '', 'twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety'];
+
         if ((num = num.toString()).length > 9) return 'overflow';
-        n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        var mat = ('000000000' + num).substring(num.length)
+        var n = mat.match(/(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})/);
         if (!n) return; var str = '';
         str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
         str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
@@ -250,7 +258,7 @@ const Question = (props) => {
                 }
             }
         } else {// 숫자 정답
-            result = shortProcess(compare)
+            result = shortProcess(compare[0])
         }
         //split해서 길이가 2면 ;으로 나누고 :으로 나눠서 숫자만 비교  
         //그냥 shortProcess로 넘겨주면 될듯 (;으로 나눴을 때 length가 1이면)
@@ -271,19 +279,25 @@ const Question = (props) => {
         var result = false;
         var clasi
         var stu_clasi
+        var stu_answer = (studentAnswer.toLowerCase()).replace(/miles|yards|sections|inches|times|days|\$|feet|/g, "")
         //answer가 정답 studentAnswer가 학생이 쓴 답
         //공백제거 후 똑같은거
-        if (answer == studentAnswer.replace(/ /g,"")) {
+        console.log(answer)
+        if (answer.replace(/ /g,"") == stu_answer.replace(/ /g,"")) {
+            console.log(answer.replace(/ /g,""))
+            console.log(stu_answer.replace(/ /g,""))
             result = true
         }
 
+        console.log(answer)
+        console.log(inWords(answer))
         if (inWords(answer) != undefined){//숫자
-            if (inWords(answer).toUpperCase == studentAnswer.toUpperCase) {
+            if (inWords(answer).toUpperCase == stu_answer.toUpperCase) {
                 result = true
             }
         } else {
-            if((stu_clasi = studentAnswer.split(".")).length < 2) {//소수점으로 나눠지지 않으면 분수로 나눔
-                stu_clasi = studentAnswer.split("/")
+            if((stu_clasi = stu_answer.split(".")).length < 2) {//소수점으로 나눠지지 않으면 분수로 나눔
+                stu_clasi = stu_answer.split("/")
             }
 
             if((clasi = answer.split(".")).length == 2) {//소수    
@@ -291,10 +305,12 @@ const Question = (props) => {
                 var molecule = parseFloat(answer) * digits
                 var fraction =  molecule + "/" + digits
 
-                if (inWords(clasi[0]) == stu_clasi[0] && 
-                        inWords(clasi[1]) == stu_clasi[1]) {//.으로 구분해 문자로 똑같은거
+                console.log(inWords(clasi[0]))
+                console.log(stu_clasi)
+                if (inWords(clasi[0]).replace(/ /g, "") == stu_clasi[0].replace(/ /g, "") && 
+                        inWords(clasi[1]).replace(/ /g, "") == stu_clasi[1].replace(/ /g, "")) {//.으로 구분해 문자로 똑같은거
                     result = true
-                } else if (fraction == studentAnswer.replace(/ /g,"")) {//소수를 분수화함
+                } else if (fraction == stu_answer.replace(/ /g,"")) {//소수를 분수화함
                     result = true
                 } else if (((inWords(molecule).replace('and','')).replace(/ /g,"")) == stu_clasi[0].replace(/ /g,"") &&
                                 inWords(digits).replace(/ /g,"") == stu_clasi[1].replace(/ /g,"")) {//소수를 분수화 한걸 문자화
@@ -302,45 +318,52 @@ const Question = (props) => {
                 }
             } else if((clasi = answer.split("/")).length == 2) {//분수
                 var mixedNumber = clasi[0].split(' ')//대분수일 경우 length가 2 아니면 1
-                var digits2 = inWords(clasi[1])//분모
-                var molecule2 = inWords(clasi[0])//분자
-                var str = molecule2 + "/" + digits2
+                var digits2 = clasi[1]//분모
+                var molecule2 = clasi[0]//분자
+                var str = inWords(molecule2) + "/" + inWords(digits2)
+                console.log("digits2",digits2)
+                console.log("molecule2",molecule2)
+                console.log("str", str)
 
                 if (mixedNumber.length > 1) {// 대분수 일 때
-                    var num = inWords(mixedNumber[0])// 대분수에 있는 붙어있는 자연수
-                    molecule2 = inWords(mixedNumber[1])//대분수일 때 분자
-                    str = num + molecule2 + "/" + digits2 //대분수 문자
-                    var improper_molecule = num * digits2 + parseInt(molecule2)//가분수 분자
+                    console.log("대분수")
+                    console.log(mixedNumber)
+                    var num = mixedNumber[0]// 대분수에 있는 붙어있는 자연수
+                    molecule2 = mixedNumber[1]//대분수일 때 분자
+                    str = inWords(num) + inWords(molecule2) + "/" + inWords(digits2) //대분수 문자
+                    var improper_molecule = (parseInt(num) * parseInt(digits2)) + parseInt(molecule2)//가분수 분자
                     var improper = improper_molecule + "/" + digits2//가분수
                     var decimal = ((improper_molecule / digits2).toFixed(3)).toString()//소수
-
-                    if (str.replace(/ /g,"") == studentAnswer.replace(/ /g,"")) {//대분수 문자화
+                    var strDecimal = inWords((decimal.split(".")[1])[0]) + inWords((decimal.split(".")[1])[1]) +
+                                        inWords((decimal.split(".")[1])[2])
+                    
+                    if (str.replace(/ /g,"") == stu_answer.replace(/ /g,"")) {//대분수 문자화
                         result = true
-                    } else if (improper == studentAnswer.replace(/ /g, "")) {//가분수로 만들기
+                    } else if (improper == stu_answer.replace(/ /g, "")) {//가분수로 만들기
                         result = true
-                    } else if (inWords(improper_molecule) == stu_clasi[0].replace(/ /g, "") &&
-                                inWords(digits2) == stu_clasi[1].replace(/ /g, "")) {//가분수에 문자로
+                    } else if (inWords(improper_molecule).replace("and","").replace(/ /g,"") == stu_clasi[0].replace("and","").replace(/ /g, "") &&
+                                inWords(digits2).replace(/ /g,"") == stu_clasi[1].replace(/ /g, "")) {//가분수에 문자로
                         result = true
-                    } else if (decimal == studentAnswer.replace(/ /g,"")) {//소수로 만들기
+                    } else if (decimal == stu_answer.replace(/ /g,"")) {//소수로 만들기
                         result = true
-                    } else if (inWords(decimal.split(".")[0]) == stu_clasi[0].replace(/ /g, " ") && 
-                                inWords(decimal.split(".")[1]) == stu_clasi[1].replace(/ /g, " ")) {//소수로 만들어서 문자로
+                    } else if (inWords(decimal.split(".")[0]).replace(/ /g,"") == stu_clasi[0].replace(/ /g,"") && 
+                                    strDecimal.replace(/ /g,"") == stu_clasi[1].replace(/ /g,"")) {//소수로 만들어서 문자로
                         result = true
                     }
                 } else {//일반 분수
                     var decimal = ((molecule2 / digits2).toFixed(3)).toString()//소수
 
-                    if (str.replace(/ /g,"") == studentAnswer.replace(/ /g,"")) {//일반분수 문자
+                    if (str.replace(/ /g,"") == stu_answer.replace(/ /g,"")) {//일반분수 문자
                         result = true
-                    } else if (decimal.replace(/ /g," ") == studentAnswer.replace(/ /g, "")) {//일반분수 소수
+                    } else if (decimal.replace(/ /g," ") == stu_answer.replace(/ /g, "")) {//일반분수 소수
                         result = true
-                    } else if (inWords(decimal.split(".")[0]) == stu_clasi[0].replace(/ /g, " ") && 
-                                    inWords(decimal.split(".")[1]) == stu_clasi[1].replace(/ /g, " ")) {//일반분수 소수 문자
+                    } else if (inWords(decimal.split(".")[0]) == stu_clasi[0].replace(/ /g, "") && 
+                                    strDecimal.replace(/ /g,"") == stu_clasi[1].replace(/ /g, "")) {//일반분수 소수 문자
                         result = true
                     }
                 }
             } else {//문자
-                if (answer.toUpperCase() == studentAnswer.replace(/ /g,"").toUpperCase()) {
+                if (answer.toUpperCase() == stu_answer.replace(/ /g,"").toUpperCase()) {
                     result = true
                 }
             }
@@ -367,7 +390,11 @@ const Question = (props) => {
                 setShow(true)
             }
         })
-
+        promport?.map((item) => {
+            if (item.promport_id == id && ((item.answer.split(";"))[0] == "guess" || (item.answer.split(";"))[0] == "goto")) {
+                setShow(false)
+            }
+        })
         if (!bool) {
             setShow(false)
         }
@@ -422,6 +449,7 @@ const Question = (props) => {
                             >
                                 <Text>{item.promport_num}</Text>
                                 <Text>{item.content}</Text>
+                                {console.log(item.answer)}
                                 <TextInput
                                     value = {studentAnswer}
                                     onChangeText = {changeText}
