@@ -111,7 +111,7 @@ const SelectStrategy = (props) => {
 
     return (
         <View>
-            <Text>{question}</Text>
+            <Text>Which strategy do you want to try?</Text>
             {strategy?.map((item, idx) => {
                 if (item.question_id == question_id) {
                     return (
@@ -134,7 +134,20 @@ const SelectStrategy = (props) => {
             <Button
                 title = "go2Question"
                 onPress = {go2Question}
-            ></Button>
+            />
+            <Button
+                title = "home"
+                onPress={() => {
+                    props.navigation.navigate("Home",
+                        {stu_id:stu_id})}}
+            />
+            <Button
+                title = "TestListr"
+                onPress={()=>{
+                    props.navigation.navigate("TestList",
+                        {stu_id:stu_id})
+                }}
+            />
         </View>
     );
 }

@@ -30,7 +30,12 @@ const QuestionAnswer = (props) => {
             const q = query(collection(db,"question_answer"), where ('student_id', "==", stu_id))
             const data = await getDocs(q)
             setAnswer(data.docs.map(doc => ({...doc.data(), id:doc.id})))
-
+            data.docs.map(
+                doc => {
+                    if (doc.data().question_id == question_id) {
+                        setStudentAnswer(doc.data().answer)
+                    }
+                })
         } catch(error) {
             console.log(error.message)
         }
@@ -85,6 +90,19 @@ const QuestionAnswer = (props) => {
                         <Button
                             title ="submit"
                             onPress={saveAnswer}
+                        />
+                        <Button
+                            title = "home"
+                            onPress={() => {
+                                props.navigation.navigate("Home",
+                                    {stu_id:stu_id})}}
+                        />
+                        <Button
+                            title = "prior"
+                            onPress={()=>{
+                                props.navigation.navigate("TestList",
+                                    {stu_id:stu_id})
+                            }}
                         />
                     </View>
                 )

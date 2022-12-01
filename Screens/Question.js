@@ -155,10 +155,10 @@ const Question = (props) => {
             result = longProcess(ans.split(";").pop())
         } else if (qus == 'guess') {
             console.log('go guess')
-            result = guessProcess(ans.split(";").pop())
+            result = guessProcess(ans.replace("guess;", ""))
         } else if (qus == 'goto') {
             console.log('go goto')
-            result = gotoProcess(ans.split(";").pop())
+            result = gotoProcess(ans.replace("goto;", ""))
         }
         console.log(result)
 
@@ -177,7 +177,8 @@ const Question = (props) => {
             } else if (qus == 'goto') {
                 setPromport_num(promport_num + parseInt(ans.split(";")[1]))
                 addAnswer(id, "false")
-                getMyAnswer(parseInt(id) + 1)
+                getMyAnswer(parseInt(id) + parseInt(ans.split(";")[1]))
+                alert("false")
             }
             else {
                 if (chance >= 3) {
@@ -222,38 +223,45 @@ const Question = (props) => {
         //split해서 길이가 1이면 숫자니까 short의 숫자랑 똑같이 구분
         var result = false
         var compare
-
+        console.log("answer", answer)
+        console.log("length", answer.split(";").length)
         if ((compare = answer.split(";")).length > 1) {// 문자 정답
             var stu_clasi = studentAnswer.split(";")// Kerla:42   Faye:51
             // 숫자 숫자
+            console.log(stu_clasi)
+            console.log(compare)
             if (inWords((stu_clasi[0]).split(":")[1]) != undefined && 
                     inWords((stu_clasi[1]).split(":")[1]) != undefined){//숫자
-                if(((stu_clasi[0]).split(":")[1]) == ((compare[0]).split(":")[1]) && 
-                        ((stu_clasi[1]).split(":")[1]) == ((compare[1]).split(":")[1])) {
+                        console.log("num num")
+                if(((stu_clasi[0]).split(":")[1]).replace(/ /g, "") == ((compare[0]).split(":")[1]).replace(/ /g, "") && 
+                        ((stu_clasi[1]).split(":")[1]).replace(/ /g, "") == ((compare[1]).split(":")[1]).replace(/ /g, "")) {
                     result = true
                 }
             }
             // 문자 문자
             else if (inWords((stu_clasi[0]).split(":")[1]) == undefined && 
                     inWords((stu_clasi[1]).split(":")[1]) == undefined){
-                if(inWords((stu_clasi[0]).split(":")[1]) == ((compare[0]).split(":")[1]).replace(/ /g,"") && 
-                        inWords((stu_clasi[1]).split(":")[1]) == ((compare[1]).split(":")[1]).replace(/ /g,"")) {
+                        console.log("str str")
+                if(((stu_clasi[0]).split(":")[1]).replace(/ /g,"") == inWords((compare[0]).split(":")[1]).replace(/ /g,"") && 
+                        ((stu_clasi[1]).split(":")[1]).replace(/ /g,"") == inWords((compare[1]).split(":")[1]).replace(/ /g,"")) {
                     result = true
                 }
             }
             // 숫자 문자
             else if (inWords((stu_clasi[0]).split(":")[1]) != undefined && 
                     inWords((stu_clasi[1]).split(":")[1]) == undefined){
+                        console.log("num str")
                 if(((stu_clasi[0]).split(":")[1]) == ((compare[0]).split(":")[1]) && 
-                        inWords((stu_clasi[1]).split(":")[1]) == ((compare[1]).split(":")[1]).replace(/ /g,"")) {
+                        ((stu_clasi[1]).split(":")[1]).replace(/ /g,"") == inWords((compare[1]).split(":")[1]).replace(/ /g,"")) {
                     result = true
                 }
             }
             // 문자 숫자
             else if (inWords((stu_clasi[0]).split(":")[1]) == undefined && 
                     inWords((stu_clasi[1]).split(":")[1]) != undefined){
-                if(inWords((stu_clasi[0]).split(":")[1]) == ((compare[0]).split(":")[1]).replace(/ /g,"") && 
-                        ((stu_clasi[1]).split(":")[1]) == ((compare[1]).split(":")[1])) {
+                        console.log("str num")
+                if((stu_clasi[0]).split(":")[1] == inWords((compare[0]).split(":")[1]).replace(/ /g,"") && 
+                        ((stu_clasi[1]).split(":")[1]).replace(/ /g,"") == ((compare[1]).split(":")[1]).replace(/ /g,"")) {
                     result = true
                 }
             }
@@ -269,7 +277,9 @@ const Question = (props) => {
         //얘는 그냥 숫자임
         //0번째인덱스는 틀렸을 때, 맞으면 0 return 틀리면 0번째 인덱스 리턴
         //1번째 인덱스는 shortProcess에 넘기면 될듯
+        console.log(answer)
         var check_answer = answer.split(";")
+        console.log(check_answer)
         var result = shortProcess(check_answer[1])
 
         return result
@@ -292,7 +302,9 @@ const Question = (props) => {
         console.log(answer)
         console.log(inWords(answer))
         if (inWords(answer) != undefined){//숫자
-            if (inWords(answer).toUpperCase == stu_answer.toUpperCase) {
+            console.log("숫자정답")
+            console.log(stu_answer)
+            if (inWords(answer).toUpperCase() == stu_answer.toUpperCase()) {
                 result = true
             }
         } else {
@@ -485,6 +497,12 @@ const Question = (props) => {
                         )
                 }
             })}
+            <Button 
+                title = "go2strategy"
+                onPress = {() => props.navigation.navigate("SelectStrategy",
+                            {question_id : question_id,
+                            stu_id:stu_id})}
+            />
         </View>
     );
 }
