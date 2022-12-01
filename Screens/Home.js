@@ -14,7 +14,8 @@ const Home = (props) => {
     const [flag,setFlag] = useState(true);
     const [solved, setSolved] = useState()
     const [promport, setPromport] = useState()
-    
+    const [progress, setProgress] = useState(0)
+
     const readfromDB = async() => {
         try {
             const student_data = await getDocs(collection(db, "student"))
@@ -29,21 +30,36 @@ const Home = (props) => {
         }
     }
 
+
     const getPromport = async() => {
         try {
             const data = await getDocs(collection(db, "promport"))
-            data.docs.map(doc=>{
-                if(doc.data().studentid == stu_id) {
-                    setSolved(doc.data().solved)
-                }
-            })
+            setPromport(data.docs.map(doc=>(
+                {...doc.data(), id: doc.id}
+                )))
         } 
         catch(error) {
             console.log(error.message)
         }
     }
 
+    const getProgress = async() => {
+        try{
+            var itemList = []
+            const q = query(collection(db,"answer"), where ('student_id', "==", stu_id))
+            const data = await getDocs(q)
+
+            data.docs.map(doc => (
+                itemList.push(doc.data())))
+            setProgress(itemList.length)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     if(flag){
+        getPromport()
+        getProgress()
         readfromDB()
         setFlag(false)
     }
@@ -53,6 +69,7 @@ const Home = (props) => {
             style = {styles.LoginLocation}>
             <Text>NAME</Text>
             <Text>CLASS AND STUDENTS</Text>
+            <Text>{progress} / {promport?.length}</Text>
             <TouchableOpacity
                     disabled = {solved}
                     onPress={()=>{

@@ -20,7 +20,8 @@
     "react-dom": "18.0.0",
     "react-native": "0.69.6",
     "react-native-reanimated": "~2.9.1",
-    "react-native-web": "~0.18.7"
+    "react-native-web": "~0.18.7",
+    "string-similarity": "^4.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
