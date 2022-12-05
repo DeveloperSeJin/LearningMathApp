@@ -1,5 +1,5 @@
 import {View, StyleSheet, Image,TouchableOpacity, TextInput, ImageBackground, Text} from 'react-native';
-import login from '../assets/login.png'
+import login from '../assets/LogIn.png'
 import {useState} from 'react';
 import background from '../assets/background.png'
 import {db} from '../firebaseConfig'

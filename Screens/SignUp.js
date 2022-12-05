@@ -4,7 +4,7 @@ import {db} from '../firebaseConfig'
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
-import signup from '../assets/signup.png'
+import signup from '../assets/SignUp.png'
 import background from '../assets/background.png'
 import cancle from '../assets/cancle.png'
 

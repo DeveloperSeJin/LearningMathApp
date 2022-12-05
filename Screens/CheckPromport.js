@@ -134,7 +134,6 @@ const CheckPromport = (props) => {
                             </View>
                             <View
                                 style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:100, marginTop:60}}
-                                key = {idx}
                             >
                                 <Text>{item.promport_num}</Text>
                                 <Text>{item.content}</Text>
