@@ -1,6 +1,12 @@
-import {TouchableOpacity, Text, View, TextInput, Button} from 'react-native';
+import {TouchableOpacity, Text, View, TextInput, Button, Image} from 'react-native';
 import {useState} from 'react';
 import {db} from '../firebaseConfig'
+import back from '../assets/back.png'
+import front from '../assets/front.png'
+import home from '../assets/home.png'
+import submit from '../assets/submit.png'
+import goStrategy from '../assets/goStrategy.png'
+
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
@@ -10,6 +16,8 @@ const Question = (props) => {
     const strategy_id = params? params.strategy_id:null;
     const question_id = params? params.question_id:null;
     const stu_id = params?params.stu_id:null;
+    const progr = params?params.progress:null;
+
     const [promport, setPromport] = useState()
     const [flag,setFlag] = useState(true);
     const [promport_num, setPromport_num] = useState(1)
@@ -446,12 +454,15 @@ const Question = (props) => {
             }
             props.navigation.navigate("SelectStrategy",
                 {question_id : question_id,
-                 stu_id:stu_id})
+                 stu_id:stu_id,
+                progress:progr})
         }
     }
 
     return (
-        <View>
+        <View
+            style ={{marginTop:50}}    
+        >
             {promport?.map((item, idx) => {
                 if (item.strategy_id == strategy_id && 
                     promport_num == item.promport_num) {
@@ -459,50 +470,92 @@ const Question = (props) => {
                             <View
                                 key = {idx}
                             >
-                                <Text>{item.promport_num}</Text>
-                                <Text>{item.content}</Text>
-                                {console.log(item.answer)}
-                                <TextInput
-                                    value = {studentAnswer}
-                                    onChangeText = {changeText}
+                            <View
+                                style ={{flexDirection:'row'}}
+                            >
+                            <TouchableOpacity
+                                onPress = { ()=>props.navigation.navigate("Home",
+                                    {stu_id:stu_id,
+                                    progress : progr})}>
+                                <Image
+                                    style={{width:30,height:30, marginLeft:20, marginRight:100}}
+                                    source={home}
+                                    resizeMode="contain"
                                 />
-                                <Button
-                                    title = "submit"
-                                    disabled={show}
-                                    onPress = {() => {
-                                        checkAnswer(item.promport_id, item.answer)
-                                        }}
-                                />
-                                <Button
-                                    title = "prior"
-                                    onPress = {() => {
+                            </TouchableOpacity>    
+                            <TouchableOpacity
+                                onPress = {() => {
                                     if(promport_num > 1) {
                                         getMyAnswer(parseInt(item.promport_id) - 1)
                                         setPromport_num(promport_num - 1)
                                         cantSubmit(parseInt(item.promport_id) - 1)
                                         }
                                     }}
+                            >
+                                <Image
+                                    style ={{width:30, height:20,marginLeft:130}}
+                                    source = {back}
                                 />
-                                <Button
-                                    title = "next"
-                                    onPress = {() => {
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress = {() => {
                                     if (promport_num < count) {
                                         getMyAnswer(parseInt(item.promport_id) + 1)
                                         setPromport_num(promport_num + 1)
                                         cantSubmit(parseInt(item.promport_id) + 1)
                                     }
                                 }}
+                            >
+                                <Image
+                                    style ={{width:30, height:20,marginLeft:30}}
+                                    source = {front}
                                 />
+                            </TouchableOpacity>
+                            </View>
+                                
+                            <View
+                                style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:100, marginTop:20}}
+                                key = {idx}
+                            >
+                                <Text>{item.promport_num}</Text>
+                                <Text>{item.content}</Text>
+                            </View>
+                            <View
+                                style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:100, marginTop:20}}
+                            >
+                                {console.log(item.answer)}
+                                <TextInput
+                                    value = {studentAnswer}
+                                    onChangeText = {changeText}
+                                />
+                            </View>
+                            <TouchableOpacity
+                                onPress = {() => props.navigation.navigate("SelectStrategy",
+                                {question_id : question_id,
+                                stu_id:stu_id,
+                                progress:progr})}
+                            >
+                                <Image
+                                    style ={{width:50, height:20, marginLeft:20, marginTop:20}}
+                                    source = {goStrategy}
+                                />
+                            </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress = {() => {
+                                        checkAnswer(item.promport_id, item.answer)
+                                        }}
+                                    disabled ={show}
+                                >
+                                    <Image  
+                                        style={{width:200, height:100, marginLeft:200}}
+                                        source={submit}
+                                        resizeMode="contain"
+                                    />
+                            </TouchableOpacity> 
                             </View>
                         )
                 }
             })}
-            <Button 
-                title = "go2strategy"
-                onPress = {() => props.navigation.navigate("SelectStrategy",
-                            {question_id : question_id,
-                            stu_id:stu_id})}
-            />
         </View>
     );
 }

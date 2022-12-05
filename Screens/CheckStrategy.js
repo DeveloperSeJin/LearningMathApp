@@ -1,14 +1,18 @@
-import {TouchableOpacity, Text, View, Button} from 'react-native';
+import {Image, TouchableOpacity, Text, View, Button, ScrollView} from 'react-native';
 import {useState} from 'react';
 import {db} from '../firebaseConfig'
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
-
+import home from '../assets/home.png'
+import back from '../assets/back.png'
+import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 const CheckStrategy = (props) => {
     const {params} = props.route
     const question_id = params? params.question_id:null;
     const stu_id = params?params.stu_id:null;
+    const progr = params?params.progress:null;
+
     const [strategy, setStrategy] = useState()
     const [flag,setFlag] = useState(true);
 
@@ -58,33 +62,59 @@ const CheckStrategy = (props) => {
 
     return (
         <View>
+            <TouchableOpacity
+                onPress = { ()=>props.navigation.navigate("Home",
+                        {stu_id:stu_id,
+                        progress : progr})}>
+                <Image
+                    style={{width:30,height:30, marginTop:50, marginLeft:20}}
+                    source={home}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
+            <ScrollView horizontal>
             {strategy?.map((item, idx) => {
                 if (item.question_id == question_id) {
                     return (
                         <TouchableOpacity
+                            //disabled = {showCheck(item.strategy_id)}
                             key = {idx}
-                            // disabled = {showCheck(item.strategy_id)}
                             onPress={()=>{
-                            props.navigation.navigate("CheckPromport", 
-                            {strategy_id : item.strategy_id,
-                             question_id : question_id,
-                             stu_id:stu_id})
-                        }}>
-                            <Text>{item.strategy_num} </Text>
-                            <Text>{item.strategy_content}</Text>
-                            <Text>--------------------------</Text>
-                        </TouchableOpacity>
+                                props.navigation.navigate("CheckPromport", 
+                                {strategy_id : item.strategy_id,
+                                 question_id : question_id,
+                                 stu_id:stu_id,
+                                progress:progr})
+                            }}>
+                            <View
+                                style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:250, marginTop:160}}
+                            >
+                            <Text
+                                style ={{marginLeft : 10, marginRight: 10,fontSize : 30}}
+                            >{item.strategy_num}</Text>
+                            <Text
+                                style = {{marginLeft : 10, marginRight: 10, marginTop:10, fontSize : 15,textDecorationLine :'underline'}}
+                            >{item.strategy_content}</Text>
+                        </View>
+                    </TouchableOpacity>
                     )
                 }
             })}
-            <Button
-                title = "go2Question"
+            <GestureHandlerScrollView horizontal />
+            </ScrollView>
+            <TouchableOpacity
                 onPress={()=>{
                     props.navigation.navigate("GradedQuestionList", {
-                        stuID : stu_id
+                        stuID : stu_id,
+                        progress:progr
                     })
                 }}
-            />
+            >
+                <Image
+                    style ={{width:30, height:30, marginTop:200, marginLeft:20}}
+                    source = {back}
+                />
+            </TouchableOpacity>
         </View>
     );
 }

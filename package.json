@@ -19,6 +19,8 @@
     "react": "18.0.0",
     "react-dom": "18.0.0",
     "react-native": "0.69.6",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-progress": "^5.0.0",
     "react-native-reanimated": "~2.9.1",
     "react-native-web": "~0.18.7",
     "string-similarity": "^4.0.4"

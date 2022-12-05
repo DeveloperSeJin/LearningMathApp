@@ -1,7 +1,10 @@
-import {View, Text, Button, Image, TouchableOpacity, Touchable, StyleSheet} from 'react-native'
-import Start from '../assets/Start.png'
-import check from '../assets/check.png'
+import {View, Text, Image, TouchableOpacity, StyleSheet, ImageBackground} from 'react-native'
 import {db} from '../firebaseConfig'
+import background from '../assets/background.png'
+import start from '../assets/start.png'
+import checkScore from '../assets/checkScore.png'
+import * as Progress from 'react-native-progress';
+import paper from '../assets/paper.png'
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
@@ -10,11 +13,14 @@ import { useState } from 'react'
 const Home = (props) => {
     const {params} = props.route
     const stu_id = params?params.stu_id:null;
+    const progr = params?params.progress:null;
 
     const [flag,setFlag] = useState(true);
     const [solved, setSolved] = useState()
     const [promport, setPromport] = useState()
     const [progress, setProgress] = useState(0)
+    const [name, setName] = useState()
+    const [myclass, setClass] = useState()
 
     const readfromDB = async() => {
         try {
@@ -22,6 +28,9 @@ const Home = (props) => {
             student_data.docs.map(doc=>{
                 if(doc.data().studentid == stu_id) {
                     setSolved(doc.data().solved)
+                    setName(doc.data().name)
+                    setClass(doc.data().class)
+                    console.log(doc.data())
                 }
             })
         } 
@@ -65,20 +74,39 @@ const Home = (props) => {
     }
 
     return (
-        <View
-            style = {styles.LoginLocation}>
-            <Text>NAME</Text>
-            <Text>CLASS AND STUDENTS</Text>
-            <Text>{progress} / {promport?.length}</Text>
+        <View>
+            <Text
+                style={{marginTop :50, marginLeft:10}}
+            >{progress + "/" + promport?.length}</Text>
+            {console.log(progr)}
+            <Progress.Bar 
+                progress={(progr)}  
+                width={390} height={20} 
+                color = {'rgba(134, 121, 217, 1)'}
+                style ={{marginLeft : 10}}
+            />
+            <ImageBackground 
+                    source = {paper}
+                    style ={{marginTop:20, marginLeft :10, marginRight:20, width: 390, height:80}}
+                    >
+                <Text
+                    style={{fontSize:20, marginTop : 10, marginLeft :30}}
+                >hello {name}</Text>
+                <Text
+                    style={{fontSize:20, marginTop : 10, marginLeft :30}}
+                >your class : {myclass}</Text>
+            </ImageBackground>
+            <Text></Text>
             <TouchableOpacity
                     disabled = {solved}
                     onPress={()=>{
                         props.navigation.navigate("TestList",
-                        {stu_id:stu_id})
+                        {stu_id:stu_id,
+                        progress:progr})
                     }}>
                 <Image
-                    style={{width:400,height:100}}
-                    source={Start}
+                    style={{width:400,height:100, marginTop:10}}
+                    source={start}
                     resizeMode="contain"
                 />
             </TouchableOpacity>
@@ -86,15 +114,16 @@ const Home = (props) => {
                     disabled = {!solved}
                     onPress={()=>{
                         props.navigation.navigate("GradedQuestionList",
-                        {stu_id:stu_id})
+                        {stu_id:stu_id,
+                        progress : progr})
                     }}>
                 <Image
-                    style={{width:400,height:100}}
-                    source={check}
+                    style={{width:400,height:100, marginTop:30}}
+                    source={checkScore}
                     resizeMode="contain"
                 />
             </TouchableOpacity>
-        </View>
+            </View>
     );
 }
 

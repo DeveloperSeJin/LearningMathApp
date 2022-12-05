@@ -1,15 +1,21 @@
-import {View, TextInput, Text, Button, TouchableOpacity} from 'react-native'
+import {View, TextInput, Text, Button, TouchableOpacity, Image, ScrollView} from 'react-native'
 import {db} from '../firebaseConfig'
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
 import {useState} from 'react'
-
+import questionImg from '../assets/questionImg.png'
+import solved from '../assets/solved.png'
+import home from '../assets/home.png'
+import ax from '../assets/ax.png'
+import triangle from '../assets/triangle.png'
+import circle from '../assets/circle.png'
 
 const GradedQuestionList = (props) => {
     const {params} = props.route
     const stuID = params? params.stu_id:null;
-
+    const progr = params?params.progress:null;
+    
     const [Question, SetQeustion] = useState();
     const [flag,setFlag] = useState(true);
     const [Strategy, setStrategy] = useState();
@@ -96,11 +102,11 @@ const GradedQuestionList = (props) => {
             }
         })
         if (check == 0) {
-            return "X"
+            return ax
         } else if ( check == num ) {
-            return "V"
+            return circle
         }  else {
-            return "*"
+            return triangle
         }
     }
 
@@ -113,19 +119,36 @@ const GradedQuestionList = (props) => {
     }
 
     const showReport = () => {
-        let show;
-        if (stuID == "001") {
-            show = <Text>hi</Text>
-        }
-        return(show);
+        var num = 0
+        var score = 0
+        Answer?.map((item) => {
+            if (stuID == item.student_id && item.answer_check == 'true') {
+                score++;
+            }
+        })
+
+        num = Promport?.length
+        return score + '/' + num
     }
 
     
       
     return (
         <View>
-            <Text>{stuID}</Text>
-            {showReport()}
+            <TouchableOpacity
+                onPress = { ()=>props.navigation.navigate("Home",
+                    {stu_id:stuID,
+                    progress : progr})}>
+                <Image
+                    style={{width:30,height:30, marginTop:50, marginLeft:20}}
+                    source={home}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
+            <Text
+                style ={{marginTop :20, fontSize :30, marginLeft:50}}
+            >your score : {showReport()}</Text>
+            <ScrollView>
             {Question?.map((item, idx) => {
                 return(
                     
@@ -134,14 +157,23 @@ const GradedQuestionList = (props) => {
                          onPress ={()=> {
                             props.navigation.navigate("CheckStrategy",
                             {question_id:item.question_id,
-                             stu_id:stuID})
+                             stu_id:stuID,
+                            progress:progr})
                          }}
                     >
-                        <Text>{item.question_id} {item.main_question} {checkQuestion(item.question_id)}</Text>
-                        <Text>-------------------------------------------------------</Text>
+                        <Image
+                            style={{width:100,height:100, marginTop:20}}
+                            source={checkQuestion(item.question_id)}
+                            resizeMode="contain"
+                        />
+                        <Text
+                            style ={{marginBottom:30}}
+                        >{item.title}</Text>
                     </TouchableOpacity>
                 )
             })}
+            <View style = {{marginBottom:150}}></View>
+            </ScrollView>
         </View>
     );
 }

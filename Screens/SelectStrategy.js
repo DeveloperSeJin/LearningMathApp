@@ -1,14 +1,19 @@
-import {TouchableOpacity, Text, View, Button} from 'react-native';
+import {TouchableOpacity, Text, View, Image, ScrollView} from 'react-native';
 import {useState} from 'react';
 import {db} from '../firebaseConfig'
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
+import home from '../assets/home.png'
+import back from '../assets/back.png'
+import { ScrollView as GestureHandlerScrollView } from 'react-native-gesture-handler'
 
 const SelectStrategy = (props) => {
     const {params} = props.route
     const question_id = params? params.question_id:null;
     const stu_id = params?params.stu_id:null;
+    const progr = params?params.progress:null;
+
     const [strategy, setStrategy] = useState()
     const [flag,setFlag] = useState(true);
     const [strategyCheck, setstrategyCheck] = useState([]);
@@ -90,7 +95,8 @@ const SelectStrategy = (props) => {
             }
         }
         props.navigation.navigate("TestList",
-            {stu_id:stu_id})
+            {stu_id:stu_id,
+            progress:progr})
         }
 
     if(flag){
@@ -111,43 +117,58 @@ const SelectStrategy = (props) => {
 
     return (
         <View>
-            <Text>Which strategy do you want to try?</Text>
+            
+            <TouchableOpacity
+                onPress = { ()=>props.navigation.navigate("Home",
+                        {stu_id:stu_id,
+                        progress : progr})}>
+                <Image
+                    style={{width:30,height:30, marginTop:50, marginLeft:20}}
+                    source={home}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
+            <Text
+                style = {{marginLeft:70, marginTop:20, marginBottom:140}}
+            >Which strategy do you want to try?</Text>
+            <ScrollView horizontal>
             {strategy?.map((item, idx) => {
                 if (item.question_id == question_id) {
                     return (
                         <TouchableOpacity
-                            key = {idx}
                             //disabled = {showCheck(item.strategy_id)}
+                            key = {idx}
                             onPress={()=>{
                             props.navigation.navigate("Question", 
                             {strategy_id : item.strategy_id,
                              question_id : question_id,
-                             stu_id:stu_id})
+                             stu_id:stu_id,
+                            progress:progr})
                         }}>
-                            <Text>{item.strategy_num}</Text>
-                            <Text>{item.strategy_content}</Text>
-                            <Text>--------------------------</Text>
-                        </TouchableOpacity>
+                        <View
+                            style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:250, marginTop:20}}
+                        >
+                            <Text
+                                style ={{marginLeft : 10, marginRight: 10,fontSize : 30}}
+                            >{item.strategy_num}</Text>
+                            <Text
+                                style = {{marginLeft : 10, marginRight: 10, marginTop:10, fontSize : 15,textDecorationLine :'underline'}}
+                            >{item.strategy_content}</Text>
+                        </View>
+                    </TouchableOpacity>
                     )
                 }
             })}
-            <Button
-                title = "go2Question"
+            <GestureHandlerScrollView horizontal />
+            </ScrollView>
+            <TouchableOpacity
                 onPress = {go2Question}
-            />
-            <Button
-                title = "home"
-                onPress={() => {
-                    props.navigation.navigate("Home",
-                        {stu_id:stu_id})}}
-            />
-            <Button
-                title = "TestListr"
-                onPress={()=>{
-                    props.navigation.navigate("TestList",
-                        {stu_id:stu_id})
-                }}
-            />
+            >
+                <Image
+                    style ={{width:30, height:30, marginTop:200, marginLeft:20}}
+                    source = {back}
+                />
+            </TouchableOpacity>
         </View>
     );
 }

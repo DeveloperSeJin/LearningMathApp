@@ -1,23 +1,32 @@
-import {TouchableOpacity, Text, View, TextInput, Button} from 'react-native';
+import {TouchableOpacity, Text, View, TextInput, Button, Image} from 'react-native';
 import {useState} from 'react';
 import {db} from '../firebaseConfig'
 import {
     addDoc, collection, getDocs,
      doc, updateDoc, where, query} from "firebase/firestore";
 import React, { useEffect } from 'react';
-import { getgid } from 'process';
+import back from '../assets/back.png'
+import front from '../assets/front.png'
+import home from '../assets/home.png'
+import correct from '../assets/correct.png'
+import wrong from '../assets/wrong.png'
+import tricky from '../assets/tricky.png'
+import goStrategy from '../assets/goStrategy.png'
 
 const CheckPromport = (props) => {
     const {params} = props.route
     const strategy_id = params? params.strategy_id:null;
     const question_id = params? params.question_id:null;
     const stu_id = params?params.stu_id:null;
+    const progr = params?params.progress:null;
+
     const [promport, setPromport] = useState()
     const [flag,setFlag] = useState(true);
     const [promport_num, setPromport_num] = useState(1)
     const [count, setCount] = useState(0)
     const [feedback, setFeedback] = useState("");
     const [answer, setAnswer] = useState();
+    const [changeanswer, setChangeAnswer] = useState(true);
     
     const sortJSON = function(data, key) {
         return data.sort(function(a, b) {
@@ -40,26 +49,14 @@ const CheckPromport = (props) => {
         }
     }
 
-      const changeText = (event) => {
-        setFeedback(event)
-      }
-
-      const addFeedBack = async (prompID) => {
-        let result
-        answer?.map((item)=> {
-            if (item.promport_id == prompID) {
-                result = item.id
-            }
-        })
-        try {
-            const docRef = doc(db, "answer", result);
-            await updateDoc(docRef, {
-                feedback : feedback
-            });
-            getANswer()
-            console.log("success")
-        } catch (error) {
-            console.log(error.message);
+    
+      const getCheck = (check) => {
+        if (check == 'true') {
+            return correct
+        } else if (check == 'false' || check == undefined) {
+            return wrong
+        } else {
+            return tricky
         }
       }
 
@@ -87,7 +84,9 @@ const CheckPromport = (props) => {
     }
 
     return (
-        <View>
+        <View
+            style ={{marginTop:50}}
+        >
             {promport?.map((item, idx) => {
                 if (item.strategy_id == strategy_id && 
                     promport_num == item.promport_num) {
@@ -95,47 +94,82 @@ const CheckPromport = (props) => {
                             <View
                                 key = {idx}
                             >
-                                <Text>{item.promport_num}</Text>
-                                <Text>{item.content}</Text>
-                                <Text>------------------------------</Text>
-                                {answer.map((doc, idx) => {
-                                    if (doc.student_id == stu_id && doc.promport_id == item.promport_id) {
-                                        return <Text key = {idx}>{doc.student_answer}      {doc.answer_check}   feedback : {doc.feedback}</Text>
-                                    }
-                                })}
-                                <TextInput
-                                    value = {feedback}
-                                    onChangeText = {changeText}
+                                <View
+                                style ={{flexDirection:'row'}}
+                            >
+                            <TouchableOpacity
+                                onPress = { ()=>props.navigation.navigate("Home",
+                                    {stu_id:stu_id,
+                                    progress : progr})}>
+                                <Image
+                                    style={{width:30,height:30, marginLeft:20, marginRight:100}}
+                                    source={home}
+                                    resizeMode="contain"
                                 />
-                                <Button
-                                    title ="submit FeedBack"
-                                    onPress = {() => {
-                                        addFeedBack(item.promport_id)}}
-                                />
-                                <Button
-                                    title = "prior"
-                                    onPress = {() => {
+                            </TouchableOpacity>    
+                            <TouchableOpacity
+                                onPress = {() => {
                                     if(promport_num > 1) {
                                         setPromport_num(promport_num - 1)
                                         }
                                     }}
+                            >
+                                <Image
+                                    style ={{width:30, height:20,marginLeft:130}}
+                                    source = {back}
                                 />
-                                <Button
-                                    title = "next"
-                                    onPress = {() => {
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress = {() => {
                                     if (promport_num < count) {
                                         setPromport_num(promport_num + 1)
                                     }
                                 }}
+                            >
+                                <Image
+                                    style ={{width:30, height:20,marginLeft:30}}
+                                    source = {front}
                                 />
-                                <Button
-                                    title = "go2Strategy"
-                                    onPress = {() => {
-                                    props.navigation.navigate("SelectStrategy",
-                                        {question_id : question_id,
-                                            stu_id:stu_id})
-                                    }}
+                            </TouchableOpacity>
+                            </View>
+                            <View
+                                style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:100, marginTop:60}}
+                                key = {idx}
+                            >
+                                <Text>{item.promport_num}</Text>
+                                <Text>{item.content}</Text>
+                            </View>
+                            <View
+                                style ={{ marginLeft :10, marginRight:20, backgroundColor:'#F6FAC2', width: 390, height:150, marginTop:20}}
+                            >
+                                {answer.map((doc, idx) => {
+                                    if (doc.student_id == stu_id && doc.promport_id == item.promport_id) {
+                                        return (
+                                        <View
+                                            key = {idx}
+                                        > 
+                                            <Image
+                                                source = {getCheck(doc.answer_check)}
+                                                style = {{width :30, height:30,marginTop:20}}
+                                            />
+                                            <Text 
+                                            >your Answer : {doc.student_answer}              correct answer : {item.answer.split(";").pop()}</Text>
+                                            <Text>feedback : {doc.feedback}</Text>
+                                        </View>)
+                                    }
+                                })}
+                            </View>
+                            <TouchableOpacity
+                                onPress = {() => props.navigation.navigate("CheckStrategy",
+                                {question_id : question_id,
+                                stu_id:stu_id,
+                                progress:progr})}
+                            >
+                                <Image
+                                    style ={{width:50, height:20, marginLeft:20, marginTop:20}}
+                                    source = {goStrategy}
                                 />
+                            </TouchableOpacity>
                             </View>
                         )
                 }
